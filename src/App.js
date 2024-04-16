@@ -5,6 +5,7 @@ import Grid from './Grid';
 function App() {
 
   const [initialValue, setInitialValue] = useState(0);
+  const [bombNumber, setBombNumber] = useState(3);
   const [grid, setGrid] = useState();
   const [showGrid, setShowGrid] = useState(false);
   const [noOfSafeCells, setNoOfSafeCells] = useState(23);
@@ -22,9 +23,15 @@ function App() {
       return;
     }
 
-    const g = new Grid(5, 2, Number(initialValue));
+    if(bombNumber <1 || bombNumber>24){
+      alert('Please specify the number of bombs within the range (1-24).');
+      return;
+    }
+
+    const g = new Grid(5, bombNumber, Number(initialValue));
     console.log(g);
 
+    setNoOfSafeCells(5*5 - bombNumber);
     setGrid(g);
     setShowGrid(true);
     setCurrentWinning(initialValue);
@@ -60,6 +67,8 @@ function App() {
     const newWinningAmount = 0.97/newWinningProbability;
     setCurrentWinning(Math.round(newWinningAmount*100)/100);
     grid.board[row][col]=2;
+    if(noOfSafeCells-1===0)
+      endGame(Math.round(newWinningAmount*100)/100);
   }
 
   const gameLost = () => {
@@ -67,7 +76,7 @@ function App() {
     window.location.reload();
   }
 
-  const endGame = () => {
+  const endGame = (currentWinning) => {
     alert('You won $'+ currentWinning);
     window.location.reload();
   }
@@ -79,6 +88,10 @@ function App() {
         (<><div>
           Enter the amount you want to play with<br/>
           <input value={initialValue} onChange={(e)=>setInitialValue(e.target.value)}></input>
+        </div>
+        <div>
+          Enter the no. of bombs (1-24)<br/>
+          <input value={bombNumber} onChange={(e)=>setBombNumber(e.target.value)}></input>
         </div>
         <button onClick={startGame}>Start</button></>):
         (<div>
@@ -120,7 +133,7 @@ function App() {
               <div style={{border: "1px solid black", padding: '1%'}} onClick={()=>uncoverCell(4,4)}>{valueToDisplay[4][4]}</div>
             </div>
           </div>
-          <button onClick={endGame}>End Game</button>
+          <button onClick={()=>endGame(currentWinning)}>End Game</button>
         </div>)}
         
       </header>
